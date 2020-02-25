@@ -1,18 +1,21 @@
-# TODO (msenin): create a project
-# TODO (msenin): create a security group
-security_groups: mons
-key_name: mons
+slave_image_id: ?
+master_image_id: ?
 
-image_id: c06cf767-d551-4978-95b9-31ceb7478579
+internal_network_cidr: 10.0.0.0/24
+public_net_id: ecdaae71-576a-41c7-a893-e599c6094641
+floating_ip_pools: public
 
-# create flavour
-flavor_id: da148996-dfbc-4dfb-856f-8f4a229df5f9
-
-# ----
-
-net_id: d8f7de70-7c25-4c04-b111-12222c6068dd
-floating_ip_pools: ext-net
-
-apt_mirror: http://archive.ubuntu.com/ubuntu
-waiter_timeout: 900
 availability_zone: nova
+
+random_instance_count: 3
+assign_floating_ip_daemon_set: true
+assign_floating_ip_random_set: false
+
+master_instance_name: "prometheus-master"
+slave_instance_name: "prometheus-slave"
+
+master_group_name: "master"
+slave_daemon_set_group_name: "slaves-daemon-set"
+slave_random_set_group_name: "slaves-general-load"
+
+waiter_timeout: 900

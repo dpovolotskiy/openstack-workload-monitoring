@@ -1,2 +1,0 @@
-docker_repo_url: https://download.docker.com/linux/ubuntu
-docker_sign_key_url: "{{ docker_repo_url }}/gpg"

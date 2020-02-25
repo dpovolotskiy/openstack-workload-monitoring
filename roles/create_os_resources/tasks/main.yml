@@ -2,15 +2,55 @@
   os_client_config:
     clouds: [ "{{ cloud }}" ]
 
-- name: Render cloud init script
-  set_fact:
-    cloudinit: "{{ lookup('template', './cloudinit.j2') }}"
+- name: Retrieve all available Openstack hypervisors
+  os_hypervisor_facts:
+          enabled: True
+          active: True
+          validate_certs: no
 
-- import_tasks: create_master_instance.yml
-  when: "group == 'master'"
+- name: Render heat template
+  template:
+          src: heat_template.j2
+          dest: ./roles/create_os_resources/templates/heat_template.yaml
+          force: yes
+  vars:
+          openstack_hypervisors: "{{ openstack_hypervisor | flatten(levels=1) }}"
+          assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set }}"
+          random_instance_count: "{{ random_instance_count }}"
+          assign_floating_ip_random_set: "{{ assign_floating_ip_random_set }}"
 
-- import_tasks: create_slave_instance_daemon_set.yml
-  when:  "group == 'slaves-daemon-set'"
+- name: Create heat stack
+  register: "mons_stack"
+  os_stack:
+          auth: "{{ cloud }}"
+          name: mons
+          state: present
+          validate_certs: no
+          template: heat_template.yaml
+          parameters:
+                  internal_network_cidr: "{{ internal_network_cidr }}"
+                  public_network_uuid: "{{ public_net_id }}"
+                  public_network: "{{ floating_ip_pools }}"
+                  master_image_id: "{{ master_image_id }}"
+                  slave_image_id: "{{ slave_image_id }}"
+                  master_instance_name: "{{ master_instance_name }}"
+                  slave_instance_name: "{{ slave_instance_name }}"
+                  availability_zone: "{{ availability_zone }}"
+                  master_group_name: "{{ master_group_name }}"
+                  slave_daemon_set_group_name: "{{ slave_daemon_set_group_name }}"
+                  slave_random_set_group_name: "{{ slave_random_set_group_name }}"
 
-- import_tasks: create_slave_instance_random_placement.yml
-  when: "group == 'slaves-general-load'"
+#fix related with output
+- name: Add hosts to inventory
+    add_host:
+            name: "{{ item['server']['public_v4'] }}"
+            ansible_user: "{{ instance_manage_user }}"
+            groups: "{{ group }}"
+            instance_name: "{{ item['server']['name'] }}"
+            ansible_host: "{{ item['server']['public_v4'] }}"
+            #if random set ansible_ssh_common_args: '-o UserKnownHostsFile=/dev/null -o ProxyCommand="ssh -i {{ ansible_ssh_private_key_file }} -W %h:%p -q {{ instance_manage_user }}@{{ master_instance_ip }}"'
+    loop: "{{ mons_stack.results }}"
+
+- name: Wait for system to become reachable
+  wait_for_connection:
+          timeout: "{{ waiter_timeout }}"

@@ -7,27 +7,8 @@
 
 - name: Create instances
   hosts: localhost
-#  strategy: free
   roles:
     - role: create_os_resources
-      vars:
-        group: 'master'
-        instance_count: 1
-        instance_name: 'prometheus-master'
-        assign_floating_ip: true
-
-    - role: create_os_resources
-      vars:
-        group: 'slaves-daemon-set'
-        instance_name: 'prometheus-slave'
-        assign_floating_ip: true
-
-    - role: create_os_resources
-      vars:
-        group: 'slaves-general-load'
-        instance_count: 3
-        instance_name: 'prometheus-slave'
-        assign_floating_ip: false
 
 - name: Include basic vars for all hosts
   hosts: all
@@ -44,7 +25,6 @@
     https_proxy: "{{ http_proxy }}"
   roles:
     - { role: common }
-    - { role: docker }
     - { role: docker_compose }
 
 - name: Deploy workload slaves

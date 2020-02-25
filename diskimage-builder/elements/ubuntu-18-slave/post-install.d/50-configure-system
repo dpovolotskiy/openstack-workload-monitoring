@@ -1,0 +1,7 @@
+#!/bin/bash
+
+useradd -s /bin/bash -d /home/demo/ -m -G sudo demo
+
+echo demo:demo | chpasswd
+
+sed -i 's/PasswordAuthentication .*/PasswordAuthentication yes/g' /etc/ssh/sshd_config

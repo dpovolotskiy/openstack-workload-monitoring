@@ -1,0 +1,216 @@
+#jinja2: lstrip_blocks: True
+heat_template_version: 2018-03-02
+
+description: Template to deploy master and slave instances for openstack workload monitoring
+
+parameters:
+        internal_network_cidr:
+                type: string
+                description: cidr of private mons network
+                default: 10.0.1.0/24
+        public_network_uuid:
+                type: string
+                description: UUID of public network
+        public_network:
+                type: string
+                description: name of public network
+        master_image_id:
+                type: string
+                description: image id of master instance
+        slave_image_id:
+                type: string
+                description: image id of slave instance
+        master_instance_name:
+                type: string
+                description: master instance name
+        slave_instance_name:
+                type: string
+                description: slave instance name
+        availability_zone:
+                type: string
+                description: name of availability zone
+                default: nova
+        master_group_name:
+                type: string
+                description: name of master group
+                default: master
+        slave_daemon_set_group_name:
+                type: string
+                description: name of slave daemon set group
+                default: slaves-daemon-set
+        slave_random_set_group_name:
+                type: string
+                description: name of slave random set group
+                default: slaves-general-load
+
+resources:
+        mons_key_pair:
+                type: OS::Nova::KeyPair
+                properties:
+                        name: mons
+                        save_private_key: True
+
+        mons_master_flavor:
+                type: OS::Nova::Flavor
+                properties:
+                        disk: 20
+                        name: mons-master
+                        ram: 4
+                        vcpus: 2
+
+        mons_slave_flavor:
+                type: OS::Nova::Flavor
+                properties:
+                        disk: 5
+                        name: mons-slave
+                        ram: 1
+                        vcpus: 1
+
+        mons_security_group:
+                type: OS::Neutron::SecurityGroup
+                properties:
+                        name: mons
+                        rules:
+                            - {"direction": ingress, "protocol": icmp, "remote_ip_prefix": 0.0.0.0/0, "ethertype": IPv4}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 22, "port_range_max": 22, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 3128, "port_range_max": 3128, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": egress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 3128, "port_range_max": 3128, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9080, "port_range_max": 9080, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9090, "port_range_max": 9090, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9100, "port_range_max": 9100, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": egress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "ethertype": IPv4, "protocol": tcp}
+
+        mons_network:
+                type: OS::Neutron::Net
+                properties:
+                        name: mons-network
+
+        mons_subnet:
+                type: OS::Neutron::Subnet
+                properties:
+                        network_id: { get_resource: mons_network }
+                        cidr: { get_param: internal_network_cidr }
+                        name: mons-subnet
+                        dns_nameservers:
+                                - 8.8.8.8
+                                - 8.8.4.4
+
+        mons_router:
+                type: OS::Neutron::Router
+                properties:
+                        name: mons-router
+
+        mons_router_extgw:
+                type: OS::Neutron::RouterGateway
+                properties:
+                        network_id: { get_param: public_network_uuid }
+                        router_id: { get_resource: mons_router }
+
+        mons_router_interface:
+                type: OS::Neutron::RouterInterface
+                properties:
+                        router_id: { get_resource: mons_router }
+                        subnet_id: { get_resource: mons_subnet }
+
+        mons_master_port:
+                type: OS::Neutron::Port
+                properties:
+                        name: mons-master-port
+                        network: { get_resource: mons_network }
+                        security_groups:
+                                - get_resource: mons_security_group
+
+        mons_master_floating_ip:
+                type: OS::Neutron::FloatingIP
+                properties:
+                        floating_network: { get_param: public_network }
+                        port_id: { get_resource: mons_master_port }
+
+        mons_master_instance:
+                type: OS::Nova::Server
+                properties:
+                        flavor: { get_resource: mons_master_flavor }
+                        image: { get_param: master_image_id }
+                        key_name: { get_resource: mons_key_pair }
+                        networks:
+                                - port: { get_resource: mons_master_port }
+                        security_groups:
+                                - { get_resource: mons_security_group }
+                        name: { get_param: master_instance_name }
+                        metadata:
+                                - hostname: { get_param: master_instance_name  }
+                                - group: { get_param: master_group_name }
+ 
+        {% for hypervisor in openstack_hypervisors %}
+        mons_slave_port_{{ loop.index }}:
+                type: OS::Neutron::Port
+                properties:
+                        name: mons-slave-port-{{ loop.index }}
+                        network: { get_resource: mons_network }
+                        security_groups:
+                                - { get_resource: mons_security_group }
+
+        {% if assign_floating_ip_daemon_set %}
+        mons_slave_floating_ip_{{ loop.index }}:
+                type: OS::Neutron::FloatingIP
+                properties:
+                        floating_network: { get_param: public_network }
+                        port_id: { get_resource: mons_slave_port_{{ loop.index }} }
+
+        {% endif %}
+        mons_slave_instance_{{ loop.index }}:
+                type: OS::Nova::Server
+                properties:
+                        availability_zone: list_join: [":", [ { get_param: availability_zone }, {{ hypervisor.name.split('.')[0]  }}]]
+                        flavor: { get_resource: mons_slave_flavor }
+                        image: { get_param: slave_image_id }
+                        key_name: { get_resource: mons_key_pair }
+                        networks:
+                                - port: { get_resource: mons_slave_port_{{ loop.index }} }
+                        security_groups:
+                                - { get_resource: mons_security_group }
+                        name:
+                                list_join: ["-", [ { get_param: slave_instance_name }, {{ hypervisor.name.split('.')[0]  }}]]
+                        metadata:
+                                - hostname:
+                                        list_join: ["-", [ { get_param: slave_instance_name }, {{ hypervisor.name.split('.')[0]  }}]]
+                                - group: { get_param: slave_daemon_set_group_name }
+
+        {% endfor %}
+
+        {%- for i in range(random_instance_count) %}
+        mons_slave_port_random_{{ loop.index }}:
+                type: OS::Neutron::Port
+                properties:
+                        name: mons-slave-port-random-{{ loop.index }}
+                        network: { get_resource: mons_network }
+                        security_groups:
+                                - { get_resource: mons_security_group }
+
+        {% if assign_floating_ip_random_set %}
+        mons_slave_floating_ip_random_{{ loop.index }}:
+                type: OS::Neutron::FloatingIP
+                properties:
+                        floating_network: { get_param: public_network }
+                        port_id: { get_resource: mons_slave_port_random_{{ loop.index }} }
+
+        {% endif %}
+        mons_slave_instance_random_{{ loop.index }}:
+                type: OS::Nova::Server
+                properties:
+                        flavor: { get_resource: mons_slave_flavor }
+                        image: { get_param: slave_image_id }
+                        key_name: { get_resource: mons_key_pair }
+                        networks:
+                                - port: { get_resource: mons_slave_port_random_{{ loop.index }} }
+                        security_groups:
+                                - { get_resource: mons_security_group }
+                        name:
+                                list_join: ["-", [ { get_param: slave_instance_name }, {{ loop.index  }}]]
+                        metadata:
+                                - hostname:
+                                        list_join: ["-", [ { get_param: slave_instance_name }, {{ loop.index  }}]]
+                                - group: { get_param: slave_random_set_group_name }
+
+        {% endfor %}

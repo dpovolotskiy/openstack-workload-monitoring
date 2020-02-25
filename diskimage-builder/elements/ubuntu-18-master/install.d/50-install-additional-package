@@ -1,0 +1,15 @@
+#!/bin/bash
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+packages="prometheus-node-exporter
+docker-ce
+python3-pip
+docker-compose
+openssh-server"
+
+apt -y install $packages
+
+apt -y autoremove && apt autoclean
