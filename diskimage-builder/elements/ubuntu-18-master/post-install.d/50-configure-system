@@ -5,3 +5,9 @@ useradd -s /bin/bash -d /home/demo/ -m -G sudo demo
 echo demo:demo | chpasswd
 
 sed -i 's/PasswordAuthentication .*/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+
+mkdir -p /home/ubuntu/monitoring/data
+mkdir -p /home/ubuntu/monitoring/config
+mkdir -p /home/ubuntu/monitoring/data/prometheus/
+
+chown -R nobody:root /home/ubuntu/monitoring/data/prometheus/

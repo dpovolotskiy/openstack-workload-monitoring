@@ -14,8 +14,4 @@ assign_floating_ip_random_set: false
 master_instance_name: "prometheus-master"
 slave_instance_name: "prometheus-slave"
 
-master_group_name: "master"
-slave_daemon_set_group_name: "slaves-daemon-set"
-slave_random_set_group_name: "slaves-general-load"
-
 waiter_timeout: 900

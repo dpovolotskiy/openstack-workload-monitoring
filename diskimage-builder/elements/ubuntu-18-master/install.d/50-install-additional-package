@@ -13,3 +13,10 @@ openssh-server"
 apt -y install $packages
 
 apt -y autoremove && apt autoclean
+
+wget https://raw.githubusercontent.com/NotGlop/docker-drag/master/docker_pull.py
+
+python docker_pull.py prom/prometheus:v2.7.2
+python docker_pull.py prom/alertmanager:v0.15.0
+python docker_pull.py alerta/alerta-web
+python docker_pull.py mongo

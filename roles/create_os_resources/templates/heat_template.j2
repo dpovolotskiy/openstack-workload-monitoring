@@ -30,18 +30,6 @@ parameters:
                 type: string
                 description: name of availability zone
                 default: nova
-        master_group_name:
-                type: string
-                description: name of master group
-                default: master
-        slave_daemon_set_group_name:
-                type: string
-                description: name of slave daemon set group
-                default: slaves-daemon-set
-        slave_random_set_group_name:
-                type: string
-                description: name of slave random set group
-                default: slaves-general-load
 
 resources:
         mons_key_pair:
@@ -140,7 +128,6 @@ resources:
                         name: { get_param: master_instance_name }
                         metadata:
                                 - hostname: { get_param: master_instance_name  }
-                                - group: { get_param: master_group_name }
  
         {% for hypervisor in openstack_hypervisors %}
         mons_slave_port_{{ loop.index }}:
@@ -175,7 +162,6 @@ resources:
                         metadata:
                                 - hostname:
                                         list_join: ["-", [ { get_param: slave_instance_name }, {{ hypervisor.name.split('.')[0]  }}]]
-                                - group: { get_param: slave_daemon_set_group_name }
 
         {% endfor %}
 
@@ -211,6 +197,5 @@ resources:
                         metadata:
                                 - hostname:
                                         list_join: ["-", [ { get_param: slave_instance_name }, {{ loop.index  }}]]
-                                - group: { get_param: slave_random_set_group_name }
 
         {% endfor %}
