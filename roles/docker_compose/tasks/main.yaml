@@ -2,27 +2,6 @@
   set_fact:
     openstack: "{{ hostvars['localhost']['openstack'] }}"
 
-# TODO (msenin) split data and config folders per services
-- name: Create services data directory
-  file:
-    path: "{{ docker_compose_folder }}/data"
-    state: directory
-    recurse: yes
-
-- name: Create services config directory
-  file:
-    path: "{{ docker_compose_folder }}/config"
-    state: directory
-    recurse: yes
-
-- name: Create compose directories
-  file:
-    path: "{{ docker_compose_folder }}/data/prometheus/"
-    owner: nobody
-    group: root
-    state: directory
-    recurse: yes
-
 - name: Set up prometheus config
   template:
     src: prometheus.j2
