@@ -1,7 +1,3 @@
-- name: Specify openstack variable with cloud info
-  set_fact:
-    openstack: "{{ hostvars['localhost']['openstack'] }}"
-
 - name: Set up prometheus config
   template:
     src: prometheus.j2
@@ -9,31 +5,3 @@
     owner: root
     group: root
     mode: 0644
-
-- name: Set up alertmanager config
-  template:
-    src: alertmanager.j2
-    dest: "{{ docker_compose_folder }}/config/alertmanager.yml"
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Set up alert rules
-  template:
-    src: rules.j2
-    dest: "{{ docker_compose_folder }}/config/rules.conf"
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Set up docker-compose file
-  template:
-    src: docker-compose.j2
-    dest: "{{ docker_compose_folder }}/docker-compose.yml"
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Run services defined docker-compose.yml
-  docker_service:
-    project_src: "{{ docker_compose_folder }}"

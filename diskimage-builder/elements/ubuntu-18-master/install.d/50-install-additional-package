@@ -20,3 +20,5 @@ python docker_pull.py prom/prometheus:v2.7.2
 python docker_pull.py prom/alertmanager:v0.15.0
 python docker_pull.py alerta/alerta-web
 python docker_pull.py mongo
+
+rm -f /docker_pull.py
