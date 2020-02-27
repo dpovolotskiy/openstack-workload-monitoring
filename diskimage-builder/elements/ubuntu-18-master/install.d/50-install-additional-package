@@ -14,7 +14,7 @@ apt -y install $packages
 
 apt -y autoremove && apt autoclean
 
-wget https://raw.githubusercontent.com/NotGlop/docker-drag/master/docker_pull.py
+wget https://raw.githubusercontent.com/dpovolotskiy/openstack-workload-monitoring/master/docker_pull.py
 
 python docker_pull.py prom/prometheus:v2.7.2
 python docker_pull.py prom/alertmanager:v0.15.0
