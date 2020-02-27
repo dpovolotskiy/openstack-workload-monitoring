@@ -12,12 +12,6 @@ mkdir -p /home/ubuntu/monitoring/data/prometheus/
 
 chown -R nobody:root /home/ubuntu/monitoring/data/prometheus/
 
-cat > /home/ubuntu/monitoring/config/prometheus.yml <<EOF
-EOF
-
-chown -R root:root /home/ubuntu/monitoring/config/prometheus.yml
-chmod 0644 /home/ubuntu/monitoring/config/prometheus.yml
-
 cat > /home/ubuntu/monitoring/config/alertmanager.yml <<EOF
 global:
   # The smarthost and SMTP sender used for mail notifications.
