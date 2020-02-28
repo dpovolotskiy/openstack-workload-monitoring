@@ -1,5 +1,6 @@
-slave_image_id: 1
-master_image_id: 2
+#Set images id
+slave_image_id: 
+master_image_id: 
 
 internal_network_cidr: 10.0.0.0/24
 public_net_id: ecdaae71-576a-41c7-a893-e599c6094641
