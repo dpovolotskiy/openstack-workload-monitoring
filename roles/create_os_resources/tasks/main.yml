@@ -15,28 +15,28 @@
           force: yes
   vars:
           openstack_hypervisors: "{{ openstack_hypervisor | flatten(levels=1) }}"
-          assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set }}"
-          random_instance_count: "{{ random_instance_count }}"
-          assign_floating_ip_random_set: "{{ assign_floating_ip_random_set }}"
+          assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_param }}"
+          random_instance_count: "{{ random_instance_count_param }}"
+          assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_param }}"
 
-- name: Create heat stack
-  register: "mons_stack"
-  os_stack:
-          auth: "{{ cloud }}"
-          name: mons
-          state: present
-          validate_certs: no
-          template: heat_template.yaml
-          parameters:
-                  internal_network_cidr: "{{ internal_network_cidr }}"
-                  public_network_uuid: "{{ public_net_id }}"
-                  public_network: "{{ floating_ip_pools }}"
-                  master_image_id: "{{ master_image_id }}"
-                  slave_image_id: "{{ slave_image_id }}"
-                  master_instance_name: "{{ master_instance_name }}"
-                  slave_instance_name: "{{ slave_instance_name }}"
-                  availability_zone: "{{ availability_zone }}"
-
-- name: Wait for system to become reachable
-  wait_for_connection:
-          timeout: "{{ waiter_timeout }}"
+          #- name: Create heat stack
+          #  register: "mons_stack"
+          #  os_stack:
+          #          auth: "{{ cloud }}"
+          #          name: mons
+          #          state: present
+          #          validate_certs: no
+          #          template: heat_template.yaml
+          #          parameters:
+          #                  internal_network_cidr: "{{ internal_network_cidr }}"
+          #                  public_network_uuid: "{{ public_net_id }}"
+          #                  public_network: "{{ floating_ip_pools }}"
+          #                  master_image_id: "{{ master_image_id }}"
+          #                  slave_image_id: "{{ slave_image_id }}"
+          #                  master_instance_name: "{{ master_instance_name }}"
+          #                  slave_instance_name: "{{ slave_instance_name }}"
+          #                  availability_zone: "{{ availability_zone }}"
+          #
+          #- name: Wait for system to become reachable
+          #  wait_for_connection:
+          #          timeout: "{{ waiter_timeout }}"

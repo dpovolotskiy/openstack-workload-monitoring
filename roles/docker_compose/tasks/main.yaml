@@ -1,7 +1,0 @@
-- name: Set up prometheus config
-  template:
-    src: prometheus.j2
-    dest: "{{ docker_compose_folder }}/config/prometheus.yml"
-    owner: root
-    group: root
-    mode: 0644

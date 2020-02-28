@@ -1,5 +1,5 @@
-slave_image_id: ?
-master_image_id: ?
+slave_image_id: 1
+master_image_id: 2
 
 internal_network_cidr: 10.0.0.0/24
 public_net_id: ecdaae71-576a-41c7-a893-e599c6094641
@@ -7,9 +7,9 @@ floating_ip_pools: public
 
 availability_zone: nova
 
-random_instance_count: 3
-assign_floating_ip_daemon_set: true
-assign_floating_ip_random_set: false
+random_instance_count_param: 3
+assign_floating_ip_daemon_set_param: true
+assign_floating_ip_random_set_param: true
 
 master_instance_name: "prometheus-master"
 slave_instance_name: "prometheus-slave"
