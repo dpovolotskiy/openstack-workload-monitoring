@@ -15,9 +15,9 @@
           force: yes
   vars:
           openstack_hypervisors: "{{ openstack_hypervisor | flatten(levels=1) }}"
-          assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_param }}"
-          random_instance_count: "{{ random_instance_count_param }}"
-          assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_param }}"
+          assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_enabled }}"
+          random_instance_count: "{{ number_of_random_instances }}"
+          assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_enabled }}"
 
 - name: Create heat stack
   os_stack:

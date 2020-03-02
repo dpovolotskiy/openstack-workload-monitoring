@@ -1,5 +1,1 @@
 cloud: openstack
-
-http_proxy:
-
-instance_manage_user: ubuntu
