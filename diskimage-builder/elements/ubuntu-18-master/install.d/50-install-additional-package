@@ -14,11 +14,7 @@ apt -y install $packages
 
 apt -y autoremove && apt autoclean
 
-wget https://raw.githubusercontent.com/dpovolotskiy/openstack-workload-monitoring/master/docker_pull.py
-
-python docker_pull.py prom/prometheus:v2.7.2
-python docker_pull.py prom/alertmanager:v0.15.0
-python docker_pull.py alerta/alerta-web
-python docker_pull.py mongo
-
-rm -f /docker_pull.py
+python /tmp/in_target.d/extra-data.d/docker_pull.py prom/prometheus:v2.7.2
+python /tmp/in_target.d/extra-data.d/docker_pull.py prom/alertmanager:v0.15.0
+python /tmp/in_target.d/extra-data.d/docker_pull.py alerta/alerta-web
+python /tmp/in_target.d/extra-data.d/docker_pull.py mongo
