@@ -11,7 +11,7 @@ availability_zone: nova
 
 number_of_random_instances: 3
 assign_floating_ip_daemon_set_enabled: true
-assign_floating_ip_random_set_enabled: true
+assign_floating_ip_random_set_enabled: false
 
 master_instance_name: "prometheus-master"
 slave_instance_name: "prometheus-slave"

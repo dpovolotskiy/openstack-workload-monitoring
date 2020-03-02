@@ -1,0 +1,69 @@
+        mons_key_pair:
+                type: OS::Nova::KeyPair
+                properties:
+                        name: mons
+                        save_private_key: True
+
+        mons_master_flavor:
+                type: OS::Nova::Flavor
+                properties:
+                        disk: 20
+                        name: mons-master
+                        ram: 4
+                        vcpus: 2
+
+        mons_slave_flavor:
+                type: OS::Nova::Flavor
+                properties:
+                        disk: 5
+                        name: mons-slave
+                        ram: 1
+                        vcpus: 1
+
+        mons_security_group:
+                type: OS::Neutron::SecurityGroup
+                properties:
+                        name: mons
+                        rules:
+                            - {"direction": ingress, "protocol": icmp, "remote_ip_prefix": 0.0.0.0/0, "ethertype": IPv4}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 22, "port_range_max": 22, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 3128, "port_range_max": 3128, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": egress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 3128, "port_range_max": 3128, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9080, "port_range_max": 9080, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9090, "port_range_max": 9090, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9100, "port_range_max": 9100, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": egress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "ethertype": IPv4, "protocol": tcp}
+
+        mons_network:
+                type: OS::Neutron::Net
+                properties:
+                        name: mons-network
+
+        mons_subnet:
+                type: OS::Neutron::Subnet
+                properties:
+                        network_id: { get_resource: mons_network }
+                        cidr: { get_param: internal_network_cidr }
+                        name: mons-subnet
+                        dns_nameservers:
+                                - 8.8.8.8
+                                - 8.8.4.4
+
+        mons_router:
+                type: OS::Neutron::Router
+                properties:
+                        name: mons-router
+
+        mons_router_extgw:
+                type: OS::Neutron::RouterGateway
+                properties:
+                        network_id: { get_param: public_network_uuid }
+                        router_id: { get_resource: mons_router }
+
+        mons_router_interface:
+                type: OS::Neutron::RouterInterface
+                properties:
+                        router_id: { get_resource: mons_router }
+                        subnet_id: { get_resource: mons_subnet }
+

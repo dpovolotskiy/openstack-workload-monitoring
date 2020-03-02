@@ -1,0 +1,34 @@
+        {%- for i in range(random_instance_count) %}
+        mons_slave_port_random_{{ loop.index }}:
+                type: OS::Neutron::Port
+                properties:
+                        name: mons-slave-port-random-{{ loop.index }}
+                        network: { get_resource: mons_network }
+                        security_groups:
+                                - { get_resource: mons_security_group }
+
+        {% if assign_floating_ip_random_set %}
+        mons_slave_floating_ip_random_{{ loop.index }}:
+                type: OS::Neutron::FloatingIP
+                properties:
+                        floating_network: { get_param: public_network }
+                        port_id: { get_resource: mons_slave_port_random_{{ loop.index }} }
+
+        {% endif %}
+        mons_slave_instance_random_{{ loop.index }}:
+                type: OS::Nova::Server
+                properties:
+                        flavor: { get_resource: mons_slave_flavor }
+                        image: { get_param: slave_image_id }
+                        key_name: { get_resource: mons_key_pair }
+                        networks:
+                                - port: { get_resource: mons_slave_port_random_{{ loop.index }} }
+                        security_groups:
+                                - { get_resource: mons_security_group }
+                        name:
+                                list_join: ["-", [ { get_param: slave_instance_name }, {{ loop.index  }}]]
+                        metadata:
+                                - hostname:
+                                        list_join: ["-", [ { get_param: slave_instance_name }, {{ loop.index  }}]]
+
+        {% endfor %}
