@@ -48,8 +48,8 @@ More information about `clouds.yaml` you may find in the [official documentation
 ### Prepare images
 You need to generate master/slave images and upload it to cloud.
 ```sh
-sudo ./diskimage-builder/build-master-image.sh
-sudo ./diskimage-builder/build-slave-image.sh
+$ sudo ./diskimage-builder/build-master-image.sh
+$ sudo ./diskimage-builder/build-slave-image.sh
 ```
 When the generation is finished, the images will be available in the following path **diskimage-builder/images/**.
 
