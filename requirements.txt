@@ -2,3 +2,4 @@ ansible==2.7.8
 openstacksdk==0.25.0
 os-client-config==1.32.0
 os-service-types==1.6.0
+diskimage-builder=2.33.0
