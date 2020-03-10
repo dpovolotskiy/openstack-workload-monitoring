@@ -1,9 +1,10 @@
-	master_user_data:
+        master_user_data:
                 type: OS::Heat::CloudConfig
                 properties:
                         cloud_config:
+                                merge_how: dict(recurse_array)+list(append)
                                 str_replace:
-                                  template:
+                                  template: |
                                     write_files:
                                       - path: /home/ubuntu/monitoring/config/prometheus.yml
                                         owner: root:root
@@ -74,7 +75,6 @@
 
                                           rule_files:
                                             - "rules.conf"
-
                                     runcmd:
                                       - bash /import_docker_images.sh
                                       - docker-compose -f /home/ubuntu/monitoring/docker-compose.yml

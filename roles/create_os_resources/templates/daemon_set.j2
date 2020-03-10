@@ -18,18 +18,22 @@
         mons_slave_instance_{{ loop.index }}:
                 type: OS::Nova::Server
                 properties:
-                        availability_zone: list_join: [":", [ { get_param: availability_zone }, {{ hypervisor.name.split('.')[0]  }}]]
+                        availability_zone:
+                                str_replace:
+                                        template: AZ:HV
+                                        params:
+                                                AZ: { get_param: availability_zone }
+                                                HV: {{ hypervisor.name.split('.')[0] }}
                         flavor: { get_resource: mons_slave_flavor }
                         image: { get_param: slave_image_id }
                         key_name: { get_resource: mons_key_pair }
                         networks:
                                 - port: { get_resource: mons_slave_port_{{ loop.index }} }
-                        security_groups:
-                                - { get_resource: mons_security_group }
                         name:
-                                list_join: ["-", [ { get_param: slave_instance_name }, {{ hypervisor.name.split('.')[0]  }}]]
-                        metadata:
-                                - hostname:
-                                        list_join: ["-", [ { get_param: slave_instance_name }, {{ hypervisor.name.split('.')[0]  }}]]
+                                str_replace:
+                                        template: slave_name-HV
+                                        params:
+                                                slave_name: { get_param: slave_instance_name }
+                                                HV: {{ hypervisor.name.split('.')[0] }}
 
         {% endfor %}

@@ -23,12 +23,11 @@
                         key_name: { get_resource: mons_key_pair }
                         networks:
                                 - port: { get_resource: mons_slave_port_random_{{ loop.index }} }
-                        security_groups:
-                                - { get_resource: mons_security_group }
                         name:
-                                list_join: ["-", [ { get_param: slave_instance_name }, {{ loop.index  }}]]
-                        metadata:
-                                - hostname:
-                                        list_join: ["-", [ { get_param: slave_instance_name }, {{ loop.index  }}]]
+                                str_replace:
+                                        template: slave_name-idx
+                                        params:
+                                                slave_name: { get_param: slave_instance_name }
+                                                idx: {{ loop.index  }}
 
         {% endfor %}

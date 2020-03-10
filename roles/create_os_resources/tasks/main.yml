@@ -21,11 +21,10 @@
 
 - name: Create heat stack
   os_stack:
-          auth: "{{ cloud }}"
           name: mons
           state: present
           validate_certs: no
-          template: heat_template.yaml
+          template: ./roles/create_os_resources/templates/heat_template.yaml
           parameters:
                   internal_network_cidr: "{{ internal_network_cidr }}"
                   public_network_uuid: "{{ public_net_id }}"

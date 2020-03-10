@@ -43,7 +43,7 @@ resources:
                         name: mons-master-port
                         network: { get_resource: mons_network }
                         security_groups:
-                                - get_resource: mons_security_group
+                                - { get_resource: mons_security_group }
 
         mons_master_floating_ip:
                 type: OS::Neutron::FloatingIP
@@ -61,9 +61,6 @@ resources:
                         key_name: { get_resource: mons_key_pair }
                         networks:
                                 - port: { get_resource: mons_master_port }
-                        security_groups:
-                                - { get_resource: mons_security_group }
                         name: { get_param: master_instance_name }
-                        user_data: { get_resource: master_user_data }        
-                        metadata:
-                                - hostname: { get_param: master_instance_name  }
+                        user_data: { get_resource: master_user_data }
+
