@@ -9,7 +9,7 @@
                 properties:
                         disk: 20
                         name: mons-master
-                        ram: 4
+                        ram: 4096
                         vcpus: 2
 
         mons_slave_flavor:
@@ -17,7 +17,7 @@
                 properties:
                         disk: 5
                         name: mons-slave
-                        ram: 1
+                        ram: 1024
                         vcpus: 1
 
         mons_security_group:
@@ -25,15 +25,15 @@
                 properties:
                         name: mons
                         rules:
-                            - {"direction": ingress, "protocol": icmp, "remote_ip_prefix": 0.0.0.0/0, "ethertype": IPv4}
-                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 22, "port_range_max": 22, "ethertype": IPv4, "protocol": tcp}
-                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 3128, "port_range_max": 3128, "ethertype": IPv4, "protocol": tcp}
-                            - {"direction": egress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 3128, "port_range_max": 3128, "ethertype": IPv4, "protocol": tcp}
-                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9080, "port_range_max": 9080, "ethertype": IPv4, "protocol": tcp}
-                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9090, "port_range_max": 9090, "ethertype": IPv4, "protocol": tcp}
-                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9100, "port_range_max": 9100, "ethertype": IPv4, "protocol": tcp}
-                            - {"direction": egress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "ethertype": IPv4, "protocol": tcp}
-                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "ethertype": IPv4, "protocol": tcp}
+                            - {"direction": ingress, "protocol": icmp, "remote_ip_prefix": 0.0.0.0/0}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 22, "port_range_max": 22, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 3128, "port_range_max": 3128, "protocol": tcp}
+                            - {"direction": egress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 3128, "port_range_max": 3128, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9080, "port_range_max": 9080, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9090, "port_range_max": 9090, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9100, "port_range_max": 9100, "protocol": tcp}
+                            - {"direction": egress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "protocol": tcp}
 
         mons_network:
                 type: OS::Neutron::Net

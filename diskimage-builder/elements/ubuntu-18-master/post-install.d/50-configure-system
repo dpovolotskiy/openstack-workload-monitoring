@@ -10,6 +10,7 @@ mkdir -p /home/ubuntu/monitoring/{data,config}
 mkdir -p /home/ubuntu/monitoring/data/prometheus/
 
 chown -R nobody:root /home/ubuntu/monitoring/data/prometheus/
+chgrp nogroup /home/ubuntu/monitoring/config/
 
 cat > /home/ubuntu/monitoring/config/alertmanager.yml <<EOF
 global:
@@ -44,8 +45,8 @@ groups:
     labels:
       severity: critical
     annotations:
-      summary: "Instance {{ '{{' }} $labels.instance {{ '}}' }} down"
-      description: "{{ '{{' }} $labels.instance {{ '}}' }} of job {{ '{{' }} $labels.job {{ '}}' }} has been down"
+      summary: "Instance {{ \$labels.instance }} down"
+      description: "{{ \$labels.instance }} of job {{ \$labels.job }} has been down"
 EOF
 
 chown -R root:root /home/ubuntu/monitoring/config/rules.conf
@@ -77,8 +78,8 @@ services:
       - ./config:/prometheus
       - ./data/alertmanager:/data
     command:
-      - '-config.file=/prometheus/alertmanager.yml'
-      - '-storage.path=/data'
+      - '--config.file=/prometheus/alertmanager.yml'
+      - '--storage.path=/data'
     ports:
       - 9093:9093
     networks:

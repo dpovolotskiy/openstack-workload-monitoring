@@ -51,16 +51,113 @@ resources:
                         floating_network: { get_param: public_network }
                         port_id: { get_resource: mons_master_port }
 
-	{% include "master_user_data.j2" %}
-
         mons_master_instance:
                 type: OS::Nova::Server
                 properties:
+                        availability_zone: { get_param: availability_zone }
+                        config_drive: "true"
                         flavor: { get_resource: mons_master_flavor }
                         image: { get_param: master_image_id }
                         key_name: { get_resource: mons_key_pair }
                         networks:
                                 - port: { get_resource: mons_master_port }
                         name: { get_param: master_instance_name }
-                        user_data: { get_resource: master_user_data }
+                        user_data_format: SOFTWARE_CONFIG
+                        user_data:
+                                str_replace:
+                                        template: |
+                                                #cloud-config
+                                                write_files:
+                                                        - path: /home/ubuntu/monitoring/config/prometheus.yml
+                                                          owner: nobody:nogroup
+                                                          permissions: '0644'
+                                                          content: |
+                                                                  global:
+                                                                          scrape_interval: 5s
+                                                                          evaluation_interval: 10s
 
+                                                                  scrape_configs:
+                                                                          - job_name: "prometheus"
+
+                                                                            scrape_interval: 2s
+                                                                            scrape_timeout: 1s
+                                                                            honor_labels: true
+
+                                                                            static_configs:
+                                                                                    - targets: ["prometheus:9090"]
+
+                                                                          - job_name: "openstack_floating_network"
+                                                                            scrape_interval: 2s
+                                                                            scrape_timeout: 1s
+                                                                            honor_labels: true
+
+                                                                            static_configs:
+                                                                                    {% if assign_floating_ip_daemon_set %}
+                                                                                    {% for hypervisor in openstack_hypervisors %}
+                                                                                    - targets: ["mons_slave_floating_ip_address_{{ loop.index }}:9100"]
+                                                                                      labels:
+                                                                                              location: "{{ hypervisor.name.split('.')[0] }}"
+                                                                                    {% endfor %}
+                                                                                    {% endif %}
+                                                                                    {% if assign_floating_ip_random_set %}
+                                                                                    {% for i in range(random_instance_count) %}
+                                                                                    - targets: ["mons_slave_floating_ip_random_address_{{ loop.index }}:9100"]
+                                                                                      labels:
+                                                                                              location: "random_instance_{{ loop.index }}"
+                                                                                    {% endfor %}
+                                                                                    {% endif %}
+
+                                                                          - job_name: "openstack_internal_network"
+                                                                            scrape_interval: 2s
+                                                                            scrape_timeout: 1s
+                                                                            honor_labels: true
+
+                                                                            static_configs:
+                                                                                    {% for hypervisor in openstack_hypervisors %}
+                                                                                    - targets: ["mons_slave_address_{{ loop.index }}:9100"]
+                                                                                      labels:
+                                                                                              location: "{{ hypervisor.name.split('.')[0] }}"
+                                                                                    {% endfor %}
+                                                                                    {% for i in range(random_instance_count) %}
+                                                                                    - targets: ["mons_slave_address_random_{{ loop.index }}:9100"]
+                                                                                      labels:
+                                                                                              location: "random_instance_{{ loop.index }}"
+                                                                                    {% endfor %}
+
+                                                                          - job_name: alerta
+                                                                            metrics_path: /api/management/metrics
+                                                                            static_configs:
+                                                                                    - targets: ["alerta:8080"]
+
+                                                                  alerting:
+                                                                          alertmanagers:
+                                                                                  - scheme: http
+                                                                                    static_configs:
+                                                                                            - targets: ["alertmanager:9093"]
+
+                                                                  rule_files:
+                                                                          - "rules.conf"
+                                                runcmd:
+                                                        - bash /import_docker_images.sh
+                                                        - docker-compose -p /home/ubuntu/monitoring/ -f /home/ubuntu/monitoring/docker-compose.yml up
+                                        params:
+                                                {% if assign_floating_ip_daemon_set %}
+                                                {% for hypervisor in openstack_hypervisors %}
+                                                mons_slave_floating_ip_address_{{ loop.index }}: { get_attr: [ mons_slave_floating_ip_{{ loop.index }}, floating_ip_address ] }
+                                                mons_slave_address_{{ loop.index }}: { get_attr: [ mons_slave_instance_{{ loop.index }}, first_address ] }
+                                                {% endfor %}
+                                                {% else %}
+                                                {% for hypervisor in openstack_hypervisors %}
+                                                mons_slave_address_{{ loop.index }}: { get_attr: [ mons_slave_instance_{{ loop.index }}, first_address ] }
+                                                {% endfor %}
+                                                {% endif %}
+                                                {% if assign_floating_ip_random_set %}
+                                                {% for i in range(random_instance_count) %}
+                                                mons_slave_floating_ip_random_address_{{ loop.index }}: { get_attr: [ mons_slave_floating_ip_random_{{ loop.index }}, floating_ip_address ] }
+                                                mons_slave_address_random_{{ loop.index }}: { get_attr: [ mons_slave_instance_random_{{ loop.index }}, first_address ] }
+                                                {% endfor %}
+                                                {% else %}
+                                                {% for i in range(random_instance_count) %}
+                                                mons_slave_address_random_{{ loop.index }}: { get_attr: [ mons_slave_instance_random_{{ loop.index }}, first_address ] }
+                                                {% endfor %}
+                                                {% endif %}

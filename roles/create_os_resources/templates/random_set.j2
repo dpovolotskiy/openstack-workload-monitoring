@@ -18,6 +18,7 @@
         mons_slave_instance_random_{{ loop.index }}:
                 type: OS::Nova::Server
                 properties:
+                        availability_zone: { get_param: availability_zone }
                         flavor: { get_resource: mons_slave_flavor }
                         image: { get_param: slave_image_id }
                         key_name: { get_resource: mons_key_pair }
