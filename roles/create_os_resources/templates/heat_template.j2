@@ -42,7 +42,10 @@ resources:
                 properties:
                         name: mons-master-port
                         network: { get_resource: mons_network }
+                        fixed_ips:
+                                - subnet_id: { get_resource: mons_subnet }
                         security_groups:
+                                - default
                                 - { get_resource: mons_security_group }
 
         mons_master_floating_ip:

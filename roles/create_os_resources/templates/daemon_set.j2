@@ -4,7 +4,10 @@
                 properties:
                         name: mons-slave-port-{{ loop.index }}
                         network: { get_resource: mons_network }
+                        fixed_ips:
+                                - subnet_id: { get_resource: mons_subnet }
                         security_groups:
+                                - default
                                 - { get_resource: mons_security_group }
 
         {% if assign_floating_ip_daemon_set %}
