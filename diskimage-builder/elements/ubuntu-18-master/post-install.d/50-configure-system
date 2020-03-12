@@ -45,8 +45,8 @@ groups:
     labels:
       severity: critical
     annotations:
-      summary: "Instance {{ \$labels.instance }} down"
-      description: "{{ \$labels.instance }} of job {{ \$labels.job }} has been down"
+      summary: "Instance {{ \$labels.instance }} ({{ \$labels.location }}) down"
+      description: "{{ \$labels.instance }} ({{ \$labels.location }}) of job {{ \$labels.job }} has been down"
 EOF
 
 chown -R root:root /home/ubuntu/monitoring/config/rules.conf
