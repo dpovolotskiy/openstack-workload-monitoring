@@ -1,12 +1,13 @@
-#Set images id
+#Set master/slave image ids
 slave_image_id: 
 master_image_id: 
 
 internal_network_cidr: 10.0.0.0/24
-#Set id of public network
+#Set public network id
 public_net_id:
+#Set public network name
 floating_ip_pools: public
-
+#Set AZ
 availability_zone: nova
 
 number_of_random_instances: 3
@@ -15,5 +16,3 @@ assign_floating_ip_random_set_enabled: false
 
 master_instance_name: "prometheus-master"
 slave_instance_name: "prometheus-slave"
-
-waiter_timeout: 900

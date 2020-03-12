@@ -34,7 +34,3 @@
                   master_instance_name: "{{ master_instance_name }}"
                   slave_instance_name: "{{ slave_instance_name }}"
                   availability_zone: "{{ availability_zone }}"
-
-- name: Wait for system to become reachable
-  wait_for_connection:
-          timeout: "{{ waiter_timeout }}"
