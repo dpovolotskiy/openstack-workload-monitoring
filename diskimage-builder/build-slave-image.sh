@@ -1,7 +1,8 @@
 #!/bin/bash
 
 RequiredPackages="qemu-utils
-kpartx"
+kpartx
+squashfs-tools"
 
 for package in $RequiredPackages; do
         dpkg-query -l $package >/dev/null 2>&1
