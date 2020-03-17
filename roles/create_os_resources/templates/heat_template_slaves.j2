@@ -1,0 +1,39 @@
+#jinja2: lstrip_blocks: True
+heat_template_version: 2018-03-02
+
+description: Template to deploy master and slave instances for openstack workload monitoring
+
+parameters:
+        internal_network_cidr:
+                type: string
+                description: cidr of private mons network
+                default: 10.0.1.0/24
+        public_network_uuid:
+                type: string
+                description: UUID of public network
+        public_network:
+                type: string
+                description: name of public network
+        master_image_id:
+                type: string
+                description: image id of master instance
+        slave_image_id:
+                type: string
+                description: image id of slave instance
+        master_instance_name:
+                type: string
+                description: master instance name
+        slave_instance_name:
+                type: string
+                description: slave instance name
+        availability_zone:
+                type: string
+                description: name of availability zone
+                default: nova
+
+resources:
+        {% include "common_resources.j2" %}
+                        
+        {% include "daemon_set.j2" -%}
+
+        {% include "random_set.j2" %}
