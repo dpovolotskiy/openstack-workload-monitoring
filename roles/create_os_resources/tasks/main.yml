@@ -17,16 +17,16 @@
           dest: "./roles/create_os_resources/templates/heat_template_{{ item }}.yaml"
           force: yes
   vars:
-          openstack_hypervisors: "{{ openstack_hypervisor[:{{ item|int * portion }}] | flatten(levels=1) }}"
+          openstack_hypervisors: "{{ openstack_hypervisor[:item|int * portion|int] | flatten(levels=1) }}"
           assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_enabled }}"
           random_instance_count: "{{ number_of_random_instances }}"
           assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_enabled }}"
-  with_sequence: start=1 end=number_of_portions
+  with_sequence: start=1 end={{ number_of_portions|int }}
 
 - name: Render master with slaves heat template
   template:
           src: heat_template_slaves_with_master.j2
-          dest: "./roles/create_os_resources/templates/heat_template_{{ number_of_portions + 1 }}.yaml"
+          dest: "./roles/create_os_resources/templates/heat_template_{{ (number_of_portions|int + 1)|string }}.yaml"
           force: yes
   vars:
           openstack_hypervisors: "{{ openstack_hypervisor | flatten(levels=1) }}"
@@ -49,4 +49,4 @@
                   master_instance_name: "{{ master_instance_name }}"
                   slave_instance_name: "{{ slave_instance_name }}"
                   availability_zone: "{{ availability_zone }}"
-  with_sequence: start=1 end={{ number_of_portions + 1 }}
+  with_sequence: start=1 end={{ number_of_portions|int + 1 }}
