@@ -1,4 +1,4 @@
-- name: Render slaves heat templates
+- name: Render heat template (without master)
   template:
           src: heat_template_slaves.j2
           dest: "./roles/create_os_resources/templates/heat_template.yaml"

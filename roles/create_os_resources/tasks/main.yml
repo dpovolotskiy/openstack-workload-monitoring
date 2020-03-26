@@ -14,7 +14,7 @@
 - include_tasks: HOT.yml
   with_sequence: start=0 end={{ number_of_portions|int }}
 
-- name: Render master with slaves heat template
+- name: Render heat template (with master)
   template:
           src: heat_template_slaves_with_master.j2
           dest: "./roles/create_os_resources/templates/heat_template.yaml"
