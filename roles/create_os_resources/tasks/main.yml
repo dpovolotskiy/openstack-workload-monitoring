@@ -21,7 +21,7 @@
           assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_enabled }}"
           random_instance_count: "{{ number_of_random_instances }}"
           assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_enabled }}"
-  with_sequence: start=1 end={{ number_of_portions|int }}
+  with_sequence: start=0 end={{ number_of_portions|int }}
 
 - name: Render master with slaves heat template
   template:
@@ -49,4 +49,4 @@
                   master_instance_name: "{{ master_instance_name }}"
                   slave_instance_name: "{{ slave_instance_name }}"
                   availability_zone: "{{ availability_zone }}"
-  with_sequence: start=1 end={{ number_of_portions|int + 1 }}
+  with_sequence: start=0 end={{ number_of_portions|int + 1 }}
