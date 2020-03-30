@@ -1,16 +1,3 @@
-- name: Receive information about the cloud from clouds.yaml
-  os_client_config:
-    clouds: [ "{{ cloud }}" ]
-
-- name: Retrieve all available Openstack hypervisors
-  os_hypervisor_facts:
-          enabled: True
-          active: True
-          validate_certs: no
-
-- set_fact:
-        number_of_portions: "{{ (openstack_hypervisor|length / portion)|round(0, 'ceil') }}"
-
 - name: Render heat templates (without master)
   template:
           src: heat_template_slaves.j2
