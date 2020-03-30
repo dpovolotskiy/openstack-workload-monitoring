@@ -1,0 +1,52 @@
+- name: Receive information about the cloud from clouds.yaml
+  os_client_config:
+    clouds: [ "{{ cloud }}" ]
+
+- name: Retrieve all available Openstack hypervisors
+  os_hypervisor_facts:
+          enabled: True
+          active: True
+          validate_certs: no
+
+- set_fact:
+        number_of_portions: "{{ (openstack_hypervisor|length / portion)|round(0, 'ceil') }}"
+
+- name: Render heat templates (without master)
+  template:
+          src: heat_template_slaves.j2
+          dest: "./roles/create_os_resources/templates/heat_template_{{ item }}.yaml"
+          force: yes
+  vars:
+          openstack_hypervisors: "{{ openstack_hypervisor[:item|int * portion|int] | flatten(levels=1) }}"
+          assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_enabled }}"
+          random_instance_count: "{{ number_of_random_instances }}"
+          assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_enabled }}"
+  with_sequence: start=0 end={{ number_of_portions|int }}
+
+- name: Render heat template (with master)
+  template:
+          src: heat_template_slaves_with_master.j2
+          dest: "./roles/create_os_resources/templates/heat_template_{{ (number_of_portions|int + 1)|string }}.yaml"
+          force: yes
+  vars:
+          openstack_hypervisors: "{{ openstack_hypervisor | flatten(levels=1) }}"
+          assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_enabled }}"
+          random_instance_count: "{{ number_of_random_instances }}"
+          assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_enabled }}"
+
+- name: Create heat stack
+  os_stack:
+          name: mons
+          state: present
+          validate_certs: no
+          template: "./roles/create_os_resources/templates/heat_template_{{ item }}.yaml"
+          parameters:
+                  internal_network_cidr: "{{ internal_network_cidr }}"
+                  public_network_uuid: "{{ public_net_id }}"
+                  public_network: "{{ floating_ip_pools }}"
+                  master_image_id: "{{ master_image_id }}"
+                  slave_image_id: "{{ slave_image_id }}"
+                  master_instance_name: "{{ master_instance_name }}"
+                  slave_instance_name: "{{ slave_instance_name }}"
+                  availability_zone: "{{ availability_zone }}"
+  with_sequence: start=0 end={{ number_of_portions|int + 1 }}

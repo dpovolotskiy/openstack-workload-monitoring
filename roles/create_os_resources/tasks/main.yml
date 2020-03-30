@@ -1,42 +1,5 @@
-- name: Receive information about the cloud from clouds.yaml
-  os_client_config:
-    clouds: [ "{{ cloud }}" ]
+- import_tasks: all_templates.yml
+  when: save_all_templates|default(false)|bool == true
 
-- name: Retrieve all available Openstack hypervisors
-  os_hypervisor_facts:
-          enabled: True
-          active: True
-          validate_certs: no
-
-- set_fact:
-        number_of_portions: "{{ (openstack_hypervisor|length / portion)|round(0, 'ceil') }}"
-
-- include_tasks: HOT.yml
-  with_sequence: start=0 end={{ number_of_portions|int }}
-
-- name: Render heat template (with master)
-  template:
-          src: heat_template_slaves_with_master.j2
-          dest: "./roles/create_os_resources/templates/heat_template.yaml"
-          force: yes
-  vars:
-          openstack_hypervisors: "{{ openstack_hypervisor | flatten(levels=1) }}"
-          assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_enabled }}"
-          random_instance_count: "{{ number_of_random_instances }}"
-          assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_enabled }}"
-
-- name: Add master to heat stack
-  os_stack:
-          name: mons
-          state: present
-          validate_certs: no
-          template: "./roles/create_os_resources/templates/heat_template.yaml"
-          parameters:
-                  internal_network_cidr: "{{ internal_network_cidr }}"
-                  public_network_uuid: "{{ public_net_id }}"
-                  public_network: "{{ floating_ip_pools }}"
-                  master_image_id: "{{ master_image_id }}"
-                  slave_image_id: "{{ slave_image_id }}"
-                  master_instance_name: "{{ master_instance_name }}"
-                  slave_instance_name: "{{ slave_instance_name }}"
-                  availability_zone: "{{ availability_zone }}"
+- import_tasks: main_template.yml
+  when: save_all_templates|default(false)|bool == false
