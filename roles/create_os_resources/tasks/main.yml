@@ -9,7 +9,7 @@
           validate_certs: no
 
 - set_fact:
-        number_of_portions: "{{ (openstack_hypervisor|length / portion)|round(0, 'ceil') }}"
+        number_of_batches: "{{ (openstack_hypervisor|length / batch_size)|round(0, 'ceil') }}"
 
 - import_tasks: all_templates.yml
   when: save_all_templates|default(false)|bool == true

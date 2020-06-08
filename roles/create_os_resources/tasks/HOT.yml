@@ -4,10 +4,12 @@
           dest: "./roles/create_os_resources/templates/heat_template.yaml"
           force: yes
   vars:
-          openstack_hypervisors: "{{ openstack_hypervisor[:item|int * portion|int] | flatten(levels=1) }}"
+          openstack_hypervisors: "{{ openstack_hypervisor[:item|int * batch_size|int] | flatten(levels=1) }}"
           assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_enabled }}"
           random_instance_count: "{{ number_of_random_instances }}"
           assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_enabled }}"
+          check_internet_access_random_set: "{{ check_internet_access_random_set_enabled }}"
+          check_internet_access_daemon_set: "{{ check_internet_access_daemon_set_enabled }}"
 
 - name: Create heat stack
   os_stack:

@@ -34,6 +34,7 @@
                             - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 9100, "port_range_max": 9100, "protocol": tcp}
                             - {"direction": egress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "protocol": tcp}
                             - {"direction": ingress, "remote_ip_prefix": 0.0.0.0/0, "port_range_min": 8678, "port_range_max": 8678, "protocol": tcp}
+                            - {"direction": ingress, "remote_ip_prefix": { get_param: internal_network_cidr }, "port_range_min": 9721, "port_range_max": 9721, "protocol": tcp}
 
         mons_network:
                 type: OS::Neutron::Net

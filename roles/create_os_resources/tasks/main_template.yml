@@ -1,5 +1,5 @@
 - include_tasks: HOT.yml
-  with_sequence: start=0 end={{ number_of_portions|int }}
+  with_sequence: start=0 end={{ number_of_batches|int }}
 
 - name: Render heat template (with master)
   template:
@@ -11,6 +11,8 @@
           assign_floating_ip_daemon_set: "{{ assign_floating_ip_daemon_set_enabled }}"
           random_instance_count: "{{ number_of_random_instances }}"
           assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_enabled }}"
+          check_internet_access_random_set: "{{ check_internet_access_random_set_enabled }}"
+          check_internet_access_daemon_set: "{{ check_internet_access_daemon_set_enabled }}"
 
 - name: Add master to heat stack
   os_stack:

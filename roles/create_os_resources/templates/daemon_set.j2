@@ -38,5 +38,12 @@
                                         params:
                                                 slave_name: { get_param: slave_instance_name }
                                                 HV: {{ hypervisor.name.split('.')[0] }}
+                        {% if check_internet_access_daemon_set %}
+                        user_data_format: SOFTWARE_CONFIG
+                        user_data: |
+                                #cloud-config
+                                runcmd:
+                                        - python3 /home/ubuntu/monitoring/customCollector/custom_collector.py
+                        {% endif %}
 
         {% endfor %}
