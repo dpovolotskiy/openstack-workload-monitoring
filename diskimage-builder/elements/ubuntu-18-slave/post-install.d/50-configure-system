@@ -5,3 +5,10 @@ useradd -s /bin/bash -d /home/demo/ -m -G sudo demo
 echo demo:demo | chpasswd
 
 sed -i 's/PasswordAuthentication .*/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+
+mkdir -p /home/ubuntu/monitoring/customCollector
+
+cp /tmp/in_target.d/extra-data.d/collector_config.yaml /home/ubuntu/monitoring/customCollector/
+cp /tmp/in_target.d/extra-data.d/custom_collector.py /home/ubuntu/monitoring/customCollector/
+
+chown -R root:root /home/ubuntu/monitoring/customCollector/*

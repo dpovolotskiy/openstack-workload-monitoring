@@ -1,0 +1,5 @@
+#!/bin/bash
+
+packages="prometheus-client"
+
+pip3 install $packages
