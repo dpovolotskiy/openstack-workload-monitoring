@@ -1,25 +1,20 @@
 import socket
 import time
 import yaml
+import os
 
 from prometheus_client import start_http_server
 from prometheus_client.core import GaugeMetricFamily, REGISTRY
 
 
-def connection_check(address, port):
-    try:
-        host = socket.gethostbyaddr(address)
-        con = socket.create_connection((host[0], port), 0.1)
-        con.close()
-        return True
-    except:
-        pass
-    return False
+def connection_check(address):
+    exit_code = os.system("ping -c1 -w2 {} > /dev/null 2>&1".format(address))
+    return not exit_code
 
 
 class CustomCollector(object):
     def __init__(self):
-        with open('config.yaml') as conf:
+        with open('/home/ubuntu/monitoring/customCollector/collector_config.yaml') as conf:
             self.config = yaml.safe_load(conf)
             self.hostname = str(socket.gethostname())
 
@@ -30,8 +25,7 @@ class CustomCollector(object):
         access = 1
         unavailable_addresses = []
         for host in self.config['config']['hosts']:
-            address, port = host.split(":")
-            if not connection_check(address, port):
+            if not connection_check(host):
                 access = 0
                 unavailable_addresses.append(host)
         if access:
@@ -42,7 +36,7 @@ class CustomCollector(object):
 
 
 if __name__ == '__main__':
-    start_http_server(9721)
+    start_http_server(port=8000)
     REGISTRY.register(CustomCollector())
     while True:
         time.sleep(10)
