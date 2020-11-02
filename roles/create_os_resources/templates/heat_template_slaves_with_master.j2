@@ -127,7 +127,7 @@ resources:
                                                                                               location: "random_instance_{{ loop.index }}"
                                                                                     {% endfor %}
 
-                                                                          - job_name: "check_internet_access"
+                                                                          - job_name: "check_internet_access_floating_ip"
                                                                             scrape_interval: 2s
                                                                             scrape_timeout: 1s
                                                                             honor_labels: true
@@ -138,13 +138,22 @@ resources:
                                                                                     - targets: ["mons_slave_address_{{ loop.index }}:8000"]
                                                                                       labels:
                                                                                               location: "{{ hypervisor.name.split('.')[0] }}"
+                                                                                              type: "floating_ip"
                                                                                     {% endfor %}
                                                                                     {% endif %}
+
+                                                                          - job_name: "check_internet_access_snat"
+                                                                            scrape_interval: 2s
+                                                                            scrape_timeout: 1s
+                                                                            honor_labels: true
+
+                                                                            static_configs:
                                                                                     {% if check_internet_access_random_set %}
                                                                                     {% for i in range(random_instance_count) %}
                                                                                     - targets: ["mons_slave_address_random_{{ loop.index }}:8000"]
                                                                                       labels:
                                                                                               location: "random_instance_{{ loop.index }}"
+                                                                                              type: "snat"
                                                                                     {% endfor %}
                                                                                     {% endif %}
 
