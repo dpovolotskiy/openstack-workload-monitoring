@@ -3,31 +3,48 @@
                 type: OS::Neutron::Net
                 properties:
                         name: snat-network-{{ loop.index }}
+
         snat_subnet_{{ loop.index }}:
                 type: OS::Neutron::Subnet
                 properties:
                         network_id: { get_resource: snat_network_{{ loop.index }} }
                         cidr: 192.168.{{ loop.index }}.0/24
                         name : snat-subnet-{{ loop.index }}
+
         snat_router_{{ loop.index }}:
                 type: OS::Neutron::Router
-                properties: 
+                properties:
                         name: snat-router-{{ loop.index }}
+
         snat_router_extgw_{{ loop.index }}:
                 type: OS::Neutron::RouterGateway
                 properties:
                         network_id: { get_param: public_network_uuid }
                         router_id: { get_resource: snat_router_{{ loop.index }} }
+
         snat_router_inerface_int_{{ loop.index }}:
                 type: OS::Neutron::RouterInterface
                 properties:
                         router_id: { get_resource: snat_router_{{ loop.index }} }
                         subnet_id: { get_resource: snat_subnet_{{ loop.index }} }
+
+        snat_mons_port_{{ loop.index }}:
+                type: OS::Neutron::Port
+                properties:
+                        name: snat-mons-port-{{ loop.index }}
+                        network: { get_resource: mons_network }
+                        fixed_ips:
+                                - subnet_id: { get_resource: mons_subnet }
+                        security_groups:
+                                - default
+                                - { get_resource: mons_security_group }
+
         snat_router_inerface_mons_{{ loop.index }}:
                 type: OS::Neutron::RouterInterface
                 properties:
                         router_id: { get_resource: snat_router_{{ loop.index }} }
-                        subnet_id: { get_resource: mons_subnet }
+                        port_id: { get_resource: snat_mons_port_{{ loop.index }} }
+
         mons_slave_port_random_{{ loop.index }}:
                 type: OS::Neutron::Port
                 properties:
@@ -69,5 +86,5 @@
                                 runcmd:
                                         - python3 /home/ubuntu/monitoring/customCollector/custom_collector.py
                         {% endif %}
-
+                depends_on: mons_slave_port_random_{{ loop.index }}
         {% endfor %}
