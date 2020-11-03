@@ -178,6 +178,13 @@ resources:
                                                         - rm /etc/resolv.conf
                                                         - ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
                                                         {% endif %}
+                                                network:
+                                                        version: 2
+                                                        routes:
+                                                                {% for i in range(random_instance_count) %}
+                                                                - to: 192.168.{{ loop.index }}.0/24
+                                                                  via: snat_router_{{ loop.index }}_mons_address
+                                                                {% endfor %}
                                         params:
                                                 {% if assign_floating_ip_daemon_set %}
                                                 {% for hypervisor in openstack_hypervisors %}
@@ -197,5 +204,6 @@ resources:
                                                 {% else %}
                                                 {% for i in range(random_instance_count) %}
                                                 mons_slave_address_random_{{ loop.index }}: { get_attr: [ mons_slave_instance_random_{{ loop.index }}, first_address ] }
+                                                snat_router_{{ loop.index }}_mons_address: { get_attr: [ snat_mons_port_{{ loop.index }}, fixed_ips, 0, ip_address ] }
                                                 {% endfor %}
                                                 {% endif %}
