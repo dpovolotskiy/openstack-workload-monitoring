@@ -16,6 +16,8 @@ assign_floating_ip_random_set_enabled: false
 check_internet_access_daemon_set_enabled: true
 check_internet_access_random_set_enabled: false
 
+add_google_dns_enabled: true
+
 batch_size: 10
 
 master_instance_name: "prometheus-master"

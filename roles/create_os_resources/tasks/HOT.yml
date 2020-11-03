@@ -10,6 +10,7 @@
           assign_floating_ip_random_set: "{{ assign_floating_ip_random_set_enabled }}"
           check_internet_access_random_set: "{{ check_internet_access_random_set_enabled }}"
           check_internet_access_daemon_set: "{{ check_internet_access_daemon_set_enabled }}"
+          add_google_dns: "{{ add_google_dns_enabled }}"
 
 - name: Create heat stack
   os_stack:

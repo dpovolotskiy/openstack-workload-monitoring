@@ -173,6 +173,11 @@ resources:
                                                 runcmd:
                                                         - bash /import_docker_images.sh
                                                         - docker-compose -p /home/ubuntu/monitoring/ -f /home/ubuntu/monitoring/docker-compose.yml up
+                                                        {% if add_google_dns %}
+                                                        - sed -i 's/#DNS=/DNS=8.8.8.8/g' /etc/systemd/resolved.conf
+                                                        - rm /etc/resolv.conf
+                                                        - ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+                                                        {% endif %}
                                         params:
                                                 {% if assign_floating_ip_daemon_set %}
                                                 {% for hypervisor in openstack_hypervisors %}
