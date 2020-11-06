@@ -6,19 +6,19 @@ internal_network_cidr: 10.0.0.0/24
 #Set public network id
 public_net_id:
 #Set public network name
-floating_ip_pools: public
+floating_ip_pools:
 #Set AZ
-availability_zone: nova
+availability_zone:
 
-number_of_random_instances: 3
+number_of_random_instances: 2
 assign_floating_ip_daemon_set_enabled: true
 assign_floating_ip_random_set_enabled: false
 check_internet_access_daemon_set_enabled: true
-check_internet_access_random_set_enabled: false
+check_internet_access_random_set_enabled: true
 
 add_google_dns_enabled: true
 
-batch_size: 10
+batch_size: 5
 
 master_instance_name: "prometheus-master"
 slave_instance_name: "prometheus-slave"
