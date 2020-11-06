@@ -1,6 +1,6 @@
 - name: Render heat template (without master)
   template:
-          src: heat_template_slaves.j2
+          src: heat_template_mon_slaves.j2
           dest: "./roles/create_os_resources/templates/heat_template.yaml"
           force: yes
   vars:

@@ -27,6 +27,7 @@ services:
       - '--storage.path=/data'
     ports:
       - 9093:9093
+    restart: always
     networks:
       - promnet
 

@@ -37,23 +37,6 @@ resources:
         {% include "daemon_set.j2" -%}
 
         {% include "random_set.j2" %}
-        mons_master_port:
-                type: OS::Neutron::Port
-                properties:
-                        name: mons-master-port
-                        network: { get_resource: mons_network }
-                        fixed_ips:
-                                - subnet_id: { get_resource: mons_subnet }
-                        security_groups:
-                                - default
-                                - { get_resource: mons_security_group }
-
-        mons_master_floating_ip:
-                type: OS::Neutron::FloatingIP
-                properties:
-                        floating_network: { get_param: public_network }
-                        port_id: { get_resource: mons_master_port }
-
         mons_master_instance:
                 type: OS::Nova::Server
                 properties:
@@ -173,18 +156,13 @@ resources:
                                                 runcmd:
                                                         - bash /import_docker_images.sh
                                                         - docker-compose -p /home/ubuntu/monitoring/ -f /home/ubuntu/monitoring/docker-compose.yml up
+                                                bootcmd:
                                                         {% if add_google_dns %}
-                                                        - sed -i 's/#DNS=/DNS=8.8.8.8/g' /etc/systemd/resolved.conf
-                                                        - rm /etc/resolv.conf
-                                                        - ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+                                                        - sed -i 's/nameserver.*/nameserver 8.8.8.8/g' /etc/resolv.conf
                                                         {% endif %}
-                                                network:
-                                                        version: 2
-                                                        routes:
-                                                                {% for i in range(random_instance_count) %}
-                                                                - to: 192.168.{{ loop.index }}.0/24
-                                                                  via: snat_router_{{ loop.index }}_mons_address
-                                                                {% endfor %}
+                                                        {% for i in range(random_instance_count) %}
+                                                        - ip route add 192.168.{{ loop.index }}.0/24 via snat_router_{{ loop.index }}_mons_address
+                                                        {% endfor %}
                                         params:
                                                 {% if assign_floating_ip_daemon_set %}
                                                 {% for hypervisor in openstack_hypervisors %}
