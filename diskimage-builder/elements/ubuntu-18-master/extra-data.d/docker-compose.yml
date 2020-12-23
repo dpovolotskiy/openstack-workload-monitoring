@@ -32,7 +32,7 @@ services:
       - promnet
 
   alerta:
-    image: alerta/alerta-web
+    image: alerta/alerta-web:8.1.0
     ports:
       - 9080:8080
     depends_on:
@@ -60,7 +60,7 @@ services:
       - dbnet
 
   db:
-    image: mongo
+    image: mongo:4.2
     volumes:
       - ./data/mongodb:/data/db
     restart: always

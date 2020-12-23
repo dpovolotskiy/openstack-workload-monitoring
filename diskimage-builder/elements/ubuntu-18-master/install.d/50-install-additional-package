@@ -16,5 +16,5 @@ apt -y autoremove && apt autoclean
 
 python /tmp/in_target.d/extra-data.d/docker_pull.py prom/prometheus:v2.7.2
 python /tmp/in_target.d/extra-data.d/docker_pull.py prom/alertmanager:v0.15.0
-python /tmp/in_target.d/extra-data.d/docker_pull.py alerta/alerta-web
-python /tmp/in_target.d/extra-data.d/docker_pull.py mongo
+python /tmp/in_target.d/extra-data.d/docker_pull.py alerta/alerta-web:8.1.0
+python /tmp/in_target.d/extra-data.d/docker_pull.py mongo:4.2
